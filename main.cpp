@@ -4,6 +4,7 @@
 #include <random>
 #include <chrono>
 #include <math.h>
+#include <fstream>
 #include "merge_default.h"
 
 using i64 = int64_t;
@@ -15,6 +16,9 @@ void test(i64 n) {
     Array a3(n);
     Array a4(n);
     Array a5(n);
+    std::ofstream def, ins;
+    def.open("default.txt", std::ios::app);
+    ins.open("insert.txt", std::ios::app);
     auto rnd = std::default_random_engine {};
     for (i64 i = 0; i < n; ++i)
     {
@@ -25,10 +29,10 @@ void test(i64 n) {
         a5[i] = i;
     }
     std::shuffle(a1.begin(), a1.end(), rnd);
-    std::shuffle(a2.begin(), a2.end(), rnd);
-    std::shuffle(a3.begin(), a3.end(), rnd);
-    std::shuffle(a4.begin(), a4.end(), rnd);
-    std::shuffle(a5.begin(), a5.end(), rnd);
+    a2 = a1;
+    a3 = a1;
+    a4 = a1;
+    a5 = a1;
     auto start = std::chrono::steady_clock::now();
     MergeSort_default(a1.begin(), a1.end());
     MergeSort_default(a2.begin(), a2.end());
@@ -37,12 +41,15 @@ void test(i64 n) {
     MergeSort_default(a5.begin(), a5.end());
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
-    std::cout << "size: " << n << ", elapsed time (default): " << elapsed_seconds.count()/5;
+    if (def.is_open())
+    {
+        def << n << " " << elapsed_seconds.count()/5 << std::endl;
+    }
     std::shuffle(a1.begin(), a1.end(), rnd);
-    std::shuffle(a2.begin(), a2.end(), rnd);
-    std::shuffle(a3.begin(), a3.end(), rnd);
-    std::shuffle(a4.begin(), a4.end(), rnd);
-    std::shuffle(a5.begin(), a5.end(), rnd);
+    a2 = a1;
+    a3 = a1;
+    a4 = a1;
+    a5 = a1;
     start = std::chrono::steady_clock::now();
     MergeSort_Insertion(a1.begin(), a1.end());
     MergeSort_Insertion(a2.begin(), a2.end());
@@ -51,19 +58,22 @@ void test(i64 n) {
     MergeSort_Insertion(a5.begin(), a5.end());
     end = std::chrono::steady_clock::now();
     elapsed_seconds = end-start;
-    std::cout << " , elapsed time (insertion): " << elapsed_seconds.count()/5 << std::endl;
+    if (ins.is_open())
+    {
+        ins << n << " " << elapsed_seconds.count()/5 << std::endl;
+    }
+    def.close();
+    ins.close();
 }
 
 int main() {
     i64 from = 0;
     i64 to = 0;
-    i64 n = 0;
-    std::cin >> from >> to >> n;
-    i64 d = (to-from)/n;
+    i64 d = 0;
+    std::cin >> from >> to >> d;
     for (i64 i = from; i <= to; i+=d)
     {
         test(i);
     }
-    
     return 0;
 }
